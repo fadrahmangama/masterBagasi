@@ -11,28 +11,35 @@ class VoucherController extends Controller
     public function checkVoucher(Request $request)
     {
         try {
-            $voucher = Voucher::where('code', $request->input('voucher_code'))
-                ->where('start_date', '<=', now())
-                ->where('end_date', '>=', now())
-                ->first();
+            $voucher = Voucher::where('code', $request->input('voucher_code'))->first();
 
             if (!$voucher) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Voucher is invalid or expired']
-                    , 400);
+                return response()->json(
+                    [
+                        'status' => false,
+                        'message' => 'Voucher not found',
+                    ],
+                    400,
+                );
             }
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Voucher found active',
-                'voucher' => $voucher]
-                , 200);
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'Voucher found',
+                    'voucher' => $voucher,
+                ],
+                200,
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Something went wrong',
-                'error' => $e->getMessage()], 500);
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Something went wrong',
+                    'error' => $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
@@ -55,17 +62,26 @@ class VoucherController extends Controller
                 'discount_amount' => $request->input('discount_amount'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
+                'active' => false,
             ]);
 
-            return response()->json([
-                'status'=>true,
-                'message' => 'Voucher created successfully',
-                'voucher' => $voucher], 201);
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'Voucher created successfully',
+                    'voucher' => $voucher,
+                ],
+                201,
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'status' =>false,
-                'message' => 'Something went wrong',
-                'error' => $e->getMessage()], 500);
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Something went wrong',
+                    'error' => $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
@@ -84,24 +100,32 @@ class VoucherController extends Controller
 
         try {
             $voucher = Voucher::findOrFail($id);
+
             $voucher->update([
                 'code' => $request->input('code'),
                 'discount_amount' => $request->input('discount_amount'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
+                'active' => false, // Set to inactive until checked by the scheduler
             ]);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Voucher updated successfully',
-                'voucher' => $voucher]
-                , 200);
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'Voucher updated successfully',
+                    'voucher' => $voucher,
+                ],
+                200,
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'status' =>false,
-                'message' => "Something went wrong",
-                'error' => $e->getMessage()]
-                , 500);
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Something went wrong',
+                    'error' => $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
@@ -111,15 +135,21 @@ class VoucherController extends Controller
             $voucher = Voucher::findOrFail($id);
             $voucher->delete();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Voucher deleted successfully']
-                , 200);
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'Voucher deleted successfully',
+                ],
+                200,
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'error' => $e->getMessage()]
-                , 500);
+            return response()->json(
+                [
+                    'status' => false,
+                    'error' => $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 }

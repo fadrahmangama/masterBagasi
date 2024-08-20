@@ -8,36 +8,24 @@ use Illuminate\Support\Facades\DB;
 
 class ActivateVoucher extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:activate-voucher';
+    protected $description = 'Activate or deactivate vouchers based on start and end dates';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Activate vouchers based on start date';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         try {
-            // Use a transaction to ensure atomicity
-            DB::transaction(function () {
-                $vouchers = Voucher::where('start_date', '<=', now())
-                    ->where('active', false)
-                    ->update(['active' => true]);
-
-                $this->info($vouchers . ' vouchers activated successfully.');
-            });
+           $vouchers = Voucher::get();
+           foreach ($vouchers as $voucher){
+                if ($voucher['start_date'] <= now() && $voucher['end_date'] >= now() && $voucher['active'] == false) {
+                    $voucher->active = true;
+                } else {
+                    $voucher->active = false;
+                }
+                $voucher->save();
+           }
+           $this->info('Vouchers activate and deactivate successfully');
         } catch (\Exception $e) {
-            $this->error('Error activating vouchers: ' . $e->getMessage());
+            $this->error('Error updating vouchers: ' . $e->getMessage());
         }
     }
 }

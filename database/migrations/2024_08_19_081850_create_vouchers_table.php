@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
+            $table->bool('active');
             $table->decimal('discount_amount', 8, 2);
             $table->dateTime('start_date');
             $table->dateTime('end_date');
